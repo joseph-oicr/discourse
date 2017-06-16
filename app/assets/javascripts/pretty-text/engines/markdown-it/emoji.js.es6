@@ -132,6 +132,7 @@ function getEmojiTokenByTranslation(content, pos, state) {
   let i;
   let search = true;
   let found = false;
+  let start = pos;
 
   while(search) {
 
@@ -152,20 +153,20 @@ function getEmojiTokenByTranslation(content, pos, state) {
   }
 
   if (!found) {
-    return false;
+    return;
   }
 
   // quick boundary check
-  if (state.pos > 0) {
-    let leading = state.src.charAt(state.pos-1);
+  if (start > 0) {
+    let leading = content.charAt(start-1);
     if (!state.md.utils.isSpace(leading.charCodeAt(0)) && !state.md.utils.isPunctChar(leading)) {
-      return false;
+      return;
     }
   }
 
   // check trailing for punct or space
   if (pos < content.length) {
-    let trailing = state.src.charCodeAt(pos+1);
+    let trailing = content.charCodeAt(pos);
     if (!state.md.utils.isSpace(trailing)){
       return;
     }
@@ -201,7 +202,9 @@ function applyEmoji(content, state) {
 
       if (!token) {
         // handle aliases (note: we can't do this in inline cause ; is not a split point)
+        //
         let info = getEmojiTokenByTranslation(content, i, state);
+
         if (info) {
           offset = info.pos - i;
           token = info.token;
@@ -217,9 +220,7 @@ function applyEmoji(content, state) {
         }
 
         result.push(token);
-
         endToken = start = i + offset;
-
       }
     }
 

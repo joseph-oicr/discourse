@@ -42,14 +42,13 @@ export default {
 
     let token    = state.push('bbcode_open', 'aside', 1);
     token.attrs  = [['class', 'quote']];
-    token.block  = true;
-
-    if (topicId) {
-      token.attrs.push(['data-topic', topicId]);
-    }
 
     if (postNumber) {
       token.attrs.push(['data-post', postNumber]);
+    }
+
+    if (topicId) {
+      token.attrs.push(['data-topic', topicId]);
     }
 
     if (full) {
@@ -73,17 +72,14 @@ export default {
       // on topic quote
       token = state.push('quote_header_open', 'div', 1);
       token.attrs = [['class', 'title']];
-      token.block = true;
 
       token = state.push('quote_controls_open', 'div', 1);
-      token.block = true;
       token.attrs = [['class', 'quote-controls']];
 
       token = state.push('quote_controls_close', 'div', -1);
-      token.block = true;
 
       if (avatarImg) {
-        token = state.push('html_block', '', 0);
+        token = state.push('html_inline', '', 0);
         token.content = avatarImg;
       }
 
@@ -104,11 +100,13 @@ export default {
 
           token = state.push('link_open', 'a', 1);
           token.attrs = [[ 'href', href ]];
+          token.block = false;
 
-          token = state.push('html_block', '', 0);
+          token = state.push('html_inline', '', 0);
           token.content = title;
 
-          state.push('link_close', 'a', -1);
+          token = state.push('link_close', 'a', -1);
+          token.block = false;
         }
       } else {
         token = state.push('text', '', 0);
@@ -116,18 +114,13 @@ export default {
       }
 
       token = state.push('quote_header_close', 'div', -1);
-      token.block = true;
     }
 
     token        = state.push('bbcode_open', 'blockquote', 1);
-    token.block  = true;
   },
 
   after: function(state) {
-    let token    = state.push('bbcode_close', 'blockquote', -1);
-    token.block  = true;
-
-    token        = state.push('bbcode_close', 'aside', -1);
-    token.block  = true;
+    state.push('bbcode_close', 'blockquote', -1);
+    state.push('bbcode_close', 'aside', -1);
   }
 };
