@@ -5,4 +5,5 @@
 //= require ./pretty-text/engines/markdown-it/emoji
 //= require ./pretty-text/engines/markdown-it/onebox
 //= require ./pretty-text/engines/markdown-it/bbcode
+//= require ./pretty-text/engines/markdown-it/code
 //= require ./pretty-text/engines/markdown-it/instance

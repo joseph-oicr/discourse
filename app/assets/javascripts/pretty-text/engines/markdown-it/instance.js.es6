@@ -3,6 +3,7 @@ import emoji from 'pretty-text/engines/markdown-it/emoji';
 import quotes from 'pretty-text/engines/markdown-it/quotes';
 import onebox from 'pretty-text/engines/markdown-it/onebox';
 import bbcode from 'pretty-text/engines/markdown-it/bbcode';
+import code from 'pretty-text/engines/markdown-it/code';
 
 
 export default function(opts) {
@@ -32,6 +33,10 @@ export default function(opts) {
 
   if (opts.features.quote) {
     bbcodeInstance.addBlockRule(quotes);
+  }
+
+  if (opts.features.code) {
+    engine.use(code);
   }
 
   engine.use(bbcodeInstance.plugin);

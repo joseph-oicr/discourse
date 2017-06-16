@@ -567,6 +567,17 @@ HTML
       expect(PrettyText.cook("abcde ^:;-P")).to include("emoji")
     end
 
+
+    it 'can include code class correctly' do
+      expect(PrettyText.cook("```cpp\ncpp\n```")).to match_html("<pre><code class='lang-cpp'>cpp\n</code></pre>")
+    end
+
+    it 'indents code correctly' do
+      code = "X\n```\n\n    #\n    x\n```"
+      cooked = PrettyText.cook(code)
+      expect(cooked).to match_html("<p>X</p>\n<pre><code class=\"lang-auto\">\n    #\n    x\n</code></pre>")
+    end
+
     it "handles onebox correctly" do
       # we expect 2 oneboxes
       expect(PrettyText.cook("http://a.com\nhttp://b.com").split("onebox").length).to eq(3)
