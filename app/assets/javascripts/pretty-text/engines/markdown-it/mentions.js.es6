@@ -2,7 +2,6 @@ const regex = /^(\w[\w.-]{0,59})\b/i;
 
 function applyMentions(state, silent, isSpace, isPunctChar, mentionLookup, getURL) {
 
-
   let pos = state.pos;
 
   // 64 = @

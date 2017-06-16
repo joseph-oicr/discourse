@@ -504,6 +504,19 @@ HTML
       SiteSetting.enable_experimental_markdown_it = true
     end
 
+    # it "replaces skin toned emoji" do
+    #   expect(PrettyText.cook("hello 👱🏿‍♀️")).to eq("<p>hello <img src=\"/images/emoji/emoji_one/blonde_woman/6.png?v=5\" title=\":blonde_woman:t6:\" class=\"emoji\" alt=\":blonde_woman:t6:\"></p>")
+    #   expect(PrettyText.cook("hello 👩‍🎤")).to eq("<p>hello <img src=\"/images/emoji/emoji_one/woman_singer.png?v=5\" title=\":woman_singer:\" class=\"emoji\" alt=\":woman_singer:\"></p>")
+    #   expect(PrettyText.cook("hello 👩🏾‍🎓")).to eq("<p>hello <img src=\"/images/emoji/emoji_one/woman_student/5.png?v=5\" title=\":woman_student:t5:\" class=\"emoji\" alt=\":woman_student:t5:\"></p>")
+    #   expect(PrettyText.cook("hello 🤷‍♀️")).to eq("<p>hello <img src=\"/images/emoji/emoji_one/woman_shrugging.png?v=5\" title=\":woman_shrugging:\" class=\"emoji\" alt=\":woman_shrugging:\"></p>")
+    # end
+    #
+
+    it "produces tag links" do
+      Fabricate(:topic, {tags: [Fabricate(:tag, name: 'known')]})
+      expect(PrettyText.cook("x #unknown::tag #known::tag")).to match_html("<p>x <span class=\"hashtag\">#unknown::tag</span> <a class=\"hashtag\" href=\"http://test.localhost/tags/known\">#<span>known</span></a></p>")
+    end
+
     it "can handle mixed lists" do
       # known bug in old md engine
       cooked = PrettyText.cook("* a\n\n1. b")

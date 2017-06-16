@@ -6,4 +6,5 @@
 //= require ./pretty-text/engines/markdown-it/onebox
 //= require ./pretty-text/engines/markdown-it/bbcode
 //= require ./pretty-text/engines/markdown-it/code
+//= require ./pretty-text/engines/markdown-it/category-hashtag
 //= require ./pretty-text/engines/markdown-it/instance

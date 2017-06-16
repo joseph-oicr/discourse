@@ -4,6 +4,7 @@ import quotes from 'pretty-text/engines/markdown-it/quotes';
 import onebox from 'pretty-text/engines/markdown-it/onebox';
 import bbcode from 'pretty-text/engines/markdown-it/bbcode';
 import code from 'pretty-text/engines/markdown-it/code';
+import categoryHashtag from 'pretty-text/engines/markdown-it/category-hashtag';
 
 
 export default function(opts) {
@@ -37,6 +38,10 @@ export default function(opts) {
 
   if (opts.features.code) {
     engine.use(code);
+  }
+
+  if (opts.features["category-hashtag"]) {
+    engine.use(categoryHashtag);
   }
 
   engine.use(bbcodeInstance.plugin);
