@@ -591,7 +591,15 @@ HTML
       expect(cooked).to match_html("<p>X</p>\n<pre><code class=\"lang-auto\">\n    #\n    x\n</code></pre>")
     end
 
-    it "handles onebox correctly" do
+    it 'can censor words correctly' do
+      SiteSetting.censored_words = 'apple|banana'
+      expect(PrettyText.cook('yay banana yay')).not_to include('banana')
+      expect(PrettyText.cook('yay `banana` yay')).not_to include('banana')
+      expect(PrettyText.cook("yay \n\n```\nbanana\n````\n yay")).not_to include('banana')
+      expect(PrettyText.cook("# banana")).not_to include('banana')
+    end
+
+    it 'handles onebox correctly' do
       # we expect 2 oneboxes
       expect(PrettyText.cook("http://a.com\nhttp://b.com").split("onebox").length).to eq(3)
       expect(PrettyText.cook("http://a.com\n\nhttp://b.com").split("onebox").length).to eq(3)
