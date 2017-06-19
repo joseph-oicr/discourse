@@ -6,7 +6,7 @@ export function censorFn(censoredWords, censoredPattern, replacementLetter) {
 
   let patterns = [];
 
-  replacementLetter = replacementLetter || '&#9632';
+  replacementLetter = replacementLetter || "&#9632;";
 
   if (censoredWords && censoredWords.length) {
     patterns = censoredWords.split("|").map(t => `(${escapeRegexp(t)})`);

@@ -3,6 +3,7 @@ import emoji from 'pretty-text/engines/markdown-it/emoji';
 import quotes from 'pretty-text/engines/markdown-it/quotes';
 import onebox from 'pretty-text/engines/markdown-it/onebox';
 import bbcodeBlock from 'pretty-text/engines/markdown-it/bbcode-block';
+import bbcodeInline from 'pretty-text/engines/markdown-it/bbcode-inline';
 import code from 'pretty-text/engines/markdown-it/code';
 import censored from 'pretty-text/engines/markdown-it/censored';
 import categoryHashtag from 'pretty-text/engines/markdown-it/category-hashtag';
@@ -51,5 +52,9 @@ export default function(opts) {
   }
 
   engine.use(bbcodeInstance.plugin);
+
+  if (opts.features.bbcode) {
+    engine.use(bbcodeInline);
+  }
   return engine;
 }

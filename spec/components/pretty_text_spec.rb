@@ -616,6 +616,10 @@ HTML
       expect(PrettyText.cook("- http://a.com")).not_to include('onebox')
     end
 
+    it "can handle bbcode" do
+      expect(PrettyText.cook("a[b]b[/b]c")).to eq("<p>a<span class='bbcode-b'>b</span>c</p>")
+    end
+
     it "do off topic quoting with emoji unescape" do
 
       topic = Fabricate(:topic, title: "this is a test topic :slight_smile:")

@@ -1,11 +1,12 @@
 // parse a tag [test a=1 b=2] to a data structure
 // {tag: "test", attrs={a: "1", b: "2"}
-function parseBBCodeTag(src, start, max) {
+export function parseBBCodeTag(src, start, max) {
 
   let i;
   let tag;
   let attrs = {};
   let closed = false;
+  let length = 0;
 
   for (i=start+1;i<max;i++) {
     let letter = src[i];
@@ -31,6 +32,7 @@ function parseBBCodeTag(src, start, max) {
   }
 
   if (closed) {
+    length = i;
 
     let raw = src.slice(start+tag.length+1, i);
 
@@ -58,7 +60,7 @@ function parseBBCodeTag(src, start, max) {
 
     tag = tag.toLowerCase();
 
-    return {tag, attrs};
+    return {tag, attrs, length};
   }
 }
 
