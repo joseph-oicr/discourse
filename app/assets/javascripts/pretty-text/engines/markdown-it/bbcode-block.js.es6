@@ -178,18 +178,4 @@ export default {
 
     return self;
   }
-
-  // let render = function(tokens, idx, _options, env, self) {
-  //
-  //   // console.log(tokens);
-  //   // // add a class to the opening tag
-  //   // if (tokens[idx].nesting === 1) {
-  //   //   tokens[idx].attrPush([ 'class', name ]);
-  //   // }
-  //
-  //   return self.renderToken(tokens, idx, _options, env, self);
-  // };
-  //
-  // md.renderer.rules['bbcode_open'] = render;
-  // md.renderer.rules['bbcode_close'] = render;
 };

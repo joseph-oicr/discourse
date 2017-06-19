@@ -2,7 +2,7 @@ import mentions from 'pretty-text/engines/markdown-it/mentions';
 import emoji from 'pretty-text/engines/markdown-it/emoji';
 import quotes from 'pretty-text/engines/markdown-it/quotes';
 import onebox from 'pretty-text/engines/markdown-it/onebox';
-import bbcode from 'pretty-text/engines/markdown-it/bbcode';
+import bbcodeBlock from 'pretty-text/engines/markdown-it/bbcode-block';
 import code from 'pretty-text/engines/markdown-it/code';
 import censored from 'pretty-text/engines/markdown-it/censored';
 import categoryHashtag from 'pretty-text/engines/markdown-it/category-hashtag';
@@ -31,7 +31,7 @@ export default function(opts) {
     engine.use(emoji);
   }
 
-  let bbcodeInstance = bbcode.create();
+  let bbcodeInstance = bbcodeBlock.create();
 
   if (opts.features.quote) {
     bbcodeInstance.addBlockRule(quotes);

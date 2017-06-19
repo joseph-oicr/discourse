@@ -597,6 +597,7 @@ HTML
       expect(PrettyText.cook('yay `banana` yay')).not_to include('banana')
       expect(PrettyText.cook("yay \n\n```\nbanana\n````\n yay")).not_to include('banana')
       expect(PrettyText.cook("# banana")).not_to include('banana')
+      expect(PrettyText.cook("# banana")).to include("\u25a0\u25a0")
     end
 
     it 'handles onebox correctly' do

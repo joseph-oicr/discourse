@@ -1,4 +1,4 @@
-import { censor } from 'pretty-text/censored-words';
+import { censorFn } from 'pretty-text/censored-words';
 import { registerOption } from 'pretty-text/pretty-text';
 
 registerOption((siteSettings, opts) => {
@@ -17,25 +17,25 @@ function recurse(tokens, apply) {
   }
 }
 
-function censorTree(state, md) {
-  const words = md.options.discourse.censoredWords;
-  const patterns = md.options.discourse.censoredPattern;
-
+function censorTree(state, censor) {
   if (!state.tokens) {
     return;
   }
 
   recurse(state.tokens, token => {
     if (token.content) {
-      token.content = censor(token.content, words, patterns);
+      token.content = censor(token.content);
     }
   });
 }
 
 export default function(md) {
-  let words = md.options.discourse.censoredWords;
-  let patterns = md.options.discourse.censoredPattern;
+  const words = md.options.discourse.censoredWords;
+  const patterns = md.options.discourse.censoredPattern;
+
   if ((words && words.length > 0) || (patterns && patterns.length > 0)) {
-    md.core.ruler.push('censored', state => censorTree(state, md));
+    const replacement = String.fromCharCode(9632);
+    const censor = censorFn(words, patterns, replacement);
+    md.core.ruler.push('censored', state => censorTree(state, censor));
   }
 }
