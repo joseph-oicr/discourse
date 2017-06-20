@@ -1,10 +1,13 @@
 import { parseBBCodeTag } from 'pretty-text/engines/markdown-it/bbcode-block';
 
 const rules = {
-  'b': {tag: 'span', 'class': 'bbcode-b'}
+  'b': {tag: 'span', 'class': 'bbcode-b'},
+  'i': {tag: 'span', 'class': 'bbcode-i'},
+  'u': {tag: 'span', 'class': 'bbcode-u'},
+  's': {tag: 'span', 'class': 'bbcode-s'}
 };
 
-function applyBBCode(state, silent) {
+function tokanizeBBCode(state, silent) {
 
   let pos = state.pos;
 
@@ -24,26 +27,72 @@ function applyBBCode(state, silent) {
     return false;
   }
 
-  const endTag = "[/" + tagInfo.tag +"]";
-  let i;
-  for(i=pos+tagInfo.length;i<state.posMax;i++) {
-    if (state.src.charCodeAt(i) === 91 && state.src.slice(i, i+endTag.length) === endTag) {
-      break;
+  tagInfo.rule = rule;
+
+  let token = state.push('text', '' , 0);
+  token.content = state.src.slice(pos, pos+tagInfo.length);
+
+  state.delimiters.push({
+    bbInfo: tagInfo,
+    marker: 'bb' + tagInfo.tag,
+    open: !tagInfo.closing,
+    close: !!tagInfo.closing,
+    token: state.tokens.length - 1,
+    level: state.level,
+    end: -1,
+    jump: 0
+  });
+
+  state.pos = pos + tagInfo.length;
+  return true;
+}
+
+function processBBCode(state, silent) {
+  let i,
+      startDelim,
+      endDelim,
+      token,
+      tagInfo,
+      delimiters = state.delimiters,
+      max = delimiters.length;
+
+  if (silent) {
+    return;
+  }
+
+  for (i=0; i<max-1; i++) {
+    startDelim = delimiters[i];
+    tagInfo = startDelim.bbInfo;
+
+    if (!tagInfo) {
+      continue;
     }
+
+    if (startDelim.end === -1) {
+      continue;
+    }
+
+    endDelim = delimiters[startDelim.end];
+
+    token = state.tokens[startDelim.token];
+    token.type = 'bbcode_' + tagInfo.tag + '_open';
+    token.attrs = [['class', tagInfo.rule['class']]];
+    token.tag = tagInfo.rule.tag;
+    token.nesting = 1;
+    token.markup = token.content;
+    token.content = '';
+
+    token = state.tokens[endDelim.token];
+    token.type = 'bbcode_' + tagInfo.tag + '_close';
+    token.tag = tagInfo.rule.tag;
+    token.nesting = -1;
+    token.markup = token.content;
+    token.content = '';
   }
-
-  // end tag not found
-  if (i === state.posMax) {
-    return false;
-  }
-
-  console.log(JSON.stringify(rule));
-  console.log(JSON.stringify(tagInfo));
-  console.log(i);
-
   return false;
 }
 
 export default function(md) {
-  md.inline.ruler.push('bbcode-inline', applyBBCode);
+  md.inline.ruler.push('bbcode-inline', tokanizeBBCode);
+  md.inline.ruler2.before('text_collapse', 'bbcode-inline', processBBCode);
 }

@@ -7,6 +7,13 @@ export function parseBBCodeTag(src, start, max) {
   let attrs = {};
   let closed = false;
   let length = 0;
+  let closingTag = false;
+
+  // closing tag
+  if (src.charCodeAt(start+1) === 47) {
+    closingTag = true;
+    start += 1;
+  }
 
   for (i=start+1;i<max;i++) {
     let letter = src[i];
@@ -19,6 +26,13 @@ export function parseBBCodeTag(src, start, max) {
   tag = src.slice(start+1, i);
 
   if (!tag) {
+    return;
+  }
+
+  if (closingTag) {
+    if (src[i] === ']') {
+      return {tag, length: tag.length+3, closing: true};
+    }
     return;
   }
 
