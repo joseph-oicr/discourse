@@ -39,14 +39,20 @@ function emitter(matches, state) {
     return true;
 }
 
-export default function(md) {
-  const rule = inlineRegexRule(md, {
-    start: '#',
-    matcher: /^#([\w-:]{1,101})/i,
-    skipInLink: true,
-    maxLength: 102,
-    emitter: emitter
-  });
+export function setup(helper) {
 
-  md.inline.ruler.push('category-hashtag', rule);
+  if (!helper.markdownIt) { return; }
+
+  helper.registerPlugin(md=>{
+
+    const rule = inlineRegexRule(md, {
+      start: '#',
+      matcher: /^#([\w-:]{1,101})/i,
+      skipInLink: true,
+      maxLength: 102,
+      emitter: emitter
+    });
+
+    md.inline.ruler.push('category-hashtag', rule);
+  });
 }

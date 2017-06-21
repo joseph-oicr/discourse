@@ -92,7 +92,18 @@ function processBBCode(state, silent) {
   return false;
 }
 
-export default function(md) {
-  md.inline.ruler.push('bbcode-inline', tokanizeBBCode);
-  md.inline.ruler2.before('text_collapse', 'bbcode-inline', processBBCode);
+export function setup(helper) {
+
+  if (!helper.markdownIt) { return; }
+
+  helper.whiteList(['span.bbcode-b', 'span.bbcode-i', 'span.bbcode-u', 'span.bbcode-s']);
+
+  helper.registerOptions(opts => {
+    opts.features['bbcode-inline'] = true;
+  });
+
+  helper.registerPlugin(md => {
+    md.inline.ruler.push('bbcode-inline', tokanizeBBCode);
+    md.inline.ruler2.before('text_collapse', 'bbcode-inline', processBBCode);
+  });
 }

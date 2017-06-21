@@ -58,7 +58,7 @@ export function buildOptions(state) {
   };
 
   if (siteSettings.enable_experimental_markdown_it) {
-    setupIt(options);
+    setupIt(options, siteSettings, state);
   } else {
     // TODO deprecate this
     _registerFns.forEach(fn => fn(siteSettings, options, state));

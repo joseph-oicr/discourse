@@ -1,4 +1,3 @@
-import { registerOption } from 'pretty-text/pretty-text';
 import { buildEmojiUrl, isCustomEmoji } from 'pretty-text/emoji';
 import { translations } from 'pretty-text/emoji/data';
 import { textReplace } from 'pretty-text/engines/markdown-it/helpers';
@@ -6,12 +5,6 @@ import { textReplace } from 'pretty-text/engines/markdown-it/helpers';
 const MAX_NAME_LENGTH = 60;
 
 let translationTree = null;
-
-registerOption((siteSettings, opts, state) => {
-  opts.features.emoji = !!siteSettings.enable_emoji;
-  opts.emojiSet = siteSettings.emoji_set || "";
-  opts.customEmoji = state.customEmoji;
-});
 
 // This allows us to efficiently search for aliases
 // We build a data structure that allows us to quickly
@@ -179,60 +172,70 @@ function getEmojiTokenByTranslation(content, pos, state) {
 }
 
 function applyEmoji(content, state) {
+  let i;
+  let result = null;
+  let contentToken = null;
 
-    let i;
-    let result = null;
-    let contentToken = null;
+  let start = 0;
 
-    let start = 0;
+  let endToken = content.length;
 
-    let endToken = content.length;
+  for (i=0; i<content.length-1; i++) {
+    let offset = 0;
+    let emojiName = getEmojiName(content,i,state);
+    let token = null;
 
-    for (i=0; i<content.length-1; i++) {
-      let offset = 0;
-      let emojiName = getEmojiName(content,i,state);
-      let token = null;
-
-      if (emojiName) {
-        token = getEmojiTokenByName(emojiName, state);
-        if (token) {
-          offset = emojiName.length+2;
-        }
-      }
-
-      if (!token) {
-        // handle aliases (note: we can't do this in inline cause ; is not a split point)
-        //
-        let info = getEmojiTokenByTranslation(content, i, state);
-
-        if (info) {
-          offset = info.pos - i;
-          token = info.token;
-        }
-      }
-
+    if (emojiName) {
+      token = getEmojiTokenByName(emojiName, state);
       if (token) {
-        result = result || [];
-        if (i-start>0) {
-          contentToken = new state.Token('text', '', 0);
-          contentToken.content = content.slice(start,i);
-          result.push(contentToken);
-        }
-
-        result.push(token);
-        endToken = start = i + offset;
+        offset = emojiName.length+2;
       }
     }
 
-    if (endToken < content.length) {
-      contentToken = new state.Token('text', '', 0);
-      contentToken.content = content.slice(endToken);
-      result.push(contentToken);
+    if (!token) {
+      // handle aliases (note: we can't do this in inline cause ; is not a split point)
+      //
+      let info = getEmojiTokenByTranslation(content, i, state);
+
+      if (info) {
+        offset = info.pos - i;
+        token = info.token;
+      }
     }
 
-    return result;
+    if (token) {
+      result = result || [];
+      if (i-start>0) {
+        contentToken = new state.Token('text', '', 0);
+        contentToken.content = content.slice(start,i);
+        result.push(contentToken);
+      }
+
+      result.push(token);
+      endToken = start = i + offset;
+    }
+  }
+
+  if (endToken < content.length) {
+    contentToken = new state.Token('text', '', 0);
+    contentToken.content = content.slice(endToken);
+    result.push(contentToken);
+  }
+
+  return result;
 }
 
-export default function(md) {
-  md.core.ruler.push('emoji', state => textReplace(state, applyEmoji));
+export function setup(helper) {
+
+  if (!helper.markdownIt) { return; }
+
+  helper.registerOptions((opts, siteSettings, state)=>{
+    opts.features.emoji = !!siteSettings.enable_emoji;
+    opts.emojiSet = siteSettings.emoji_set || "";
+    opts.customEmoji = state.customEmoji;
+  });
+
+  helper.registerPlugin((md)=>{
+    md.core.ruler.push('emoji', state => textReplace(state, applyEmoji));
+  });
 }

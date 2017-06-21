@@ -1,12 +1,6 @@
 import { performEmojiUnescape } from 'pretty-text/emoji';
-import { registerOption } from 'pretty-text/pretty-text';
 
-registerOption((siteSettings, opts) => {
-  opts.enableEmoji = siteSettings.enable_emoji;
-  opts.emojiSet = siteSettings.emoji_set;
-});
-
-export default {
+const rule = {
   tag: 'quote',
 
   before: function(state, attrs, md) {
@@ -124,3 +118,17 @@ export default {
     state.push('bbcode_close', 'aside', -1);
   }
 };
+
+export function setup(helper) {
+
+  if (!helper.markdownIt) { return; }
+
+  helper.registerOptions((opts, siteSettings) => {
+    opts.enableEmoji = siteSettings.enable_emoji;
+    opts.emojiSet = siteSettings.emoji_set;
+  });
+
+  helper.registerPlugin(md=>{
+     md.block.bbcode_ruler.push('quotes', rule);
+  });
+}

@@ -1,11 +1,4 @@
 import { censorFn } from 'pretty-text/censored-words';
-import { registerOption } from 'pretty-text/pretty-text';
-
-registerOption((siteSettings, opts) => {
-  opts.features.censored = true;
-  opts.censoredWords = siteSettings.censored_words;
-  opts.censoredPattern = siteSettings.censored_pattern;
-});
 
 function recurse(tokens, apply) {
   let i;
@@ -29,13 +22,23 @@ function censorTree(state, censor) {
   });
 }
 
-export default function(md) {
-  const words = md.options.discourse.censoredWords;
-  const patterns = md.options.discourse.censoredPattern;
+export function setup(helper) {
 
-  if ((words && words.length > 0) || (patterns && patterns.length > 0)) {
-    const replacement = String.fromCharCode(9632);
-    const censor = censorFn(words, patterns, replacement);
-    md.core.ruler.push('censored', state => censorTree(state, censor));
-  }
+  if (!helper.markdownIt) { return; }
+
+  helper.registerOptions((opts, siteSettings) => {
+    opts.censoredWords = siteSettings.censored_words;
+    opts.censoredPattern = siteSettings.censored_pattern;
+  });
+
+  helper.registerPlugin(md => {
+    const words = md.options.discourse.censoredWords;
+    const patterns = md.options.discourse.censoredPattern;
+
+    if ((words && words.length > 0) || (patterns && patterns.length > 0)) {
+      const replacement = String.fromCharCode(9632);
+      const censor = censorFn(words, patterns, replacement);
+      md.core.ruler.push('censored', state => censorTree(state, censor));
+    }
+  });
 }

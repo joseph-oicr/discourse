@@ -1,4 +1,3 @@
-
 function applyOnebox(state, silent) {
   if (silent || !state.tokens || state.tokens.length < 3) {
     return;
@@ -57,6 +56,11 @@ function applyOnebox(state, silent) {
 }
 
 
-export default function(md) {
-  md.core.ruler.after('linkify', 'onebox', applyOnebox);
+export function setup(helper) {
+
+  if (!helper.markdownIt) { return; }
+
+  helper.registerPlugin(md => {
+    md.core.ruler.after('linkify', 'onebox', applyOnebox);
+  });
 }

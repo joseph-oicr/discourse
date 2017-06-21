@@ -70,14 +70,19 @@ function applyMentions(state, silent, isSpace, isPunctChar, mentionLookup, getUR
   return true;
 }
 
-export default function(md) {
-  md.inline.ruler.push('mentions', (state,silent)=> applyMentions(
-        state,
-        silent,
-        md.utils.isSpace,
-        md.utils.isPunctChar,
-        md.options.discourse.mentionLookup,
-        md.options.discourse.getURL
-  ));
+export function setup(helper) {
+
+  if (!helper.markdownIt) { return; }
+
+  helper.registerPlugin(md => {
+    md.inline.ruler.push('mentions', (state,silent)=> applyMentions(
+          state,
+          silent,
+          md.utils.isSpace,
+          md.utils.isPunctChar,
+          md.options.discourse.mentionLookup,
+          md.options.discourse.getURL
+    ));
+  });
 }
 

@@ -1,15 +1,8 @@
 // we need a custom renderer for code blocks cause we have a slightly non compliant
 // format with special handling for text and so on
-//
-import { registerOption } from 'pretty-text/pretty-text';
 
 const TEXT_CODE_CLASSES = ["text", "pre", "plain"];
 
-registerOption((siteSettings, opts) => {
-  opts.features.code = true;
-  opts.defaultCodeLang = siteSettings.default_code_lang;
-  opts.acceptableCodeClasses = (siteSettings.highlighted_languages || "").split("|").concat(['auto', 'nohighlight']);
-});
 
 function render(tokens, idx, options, env, slf, md) {
   let token = tokens[idx],
@@ -33,6 +26,26 @@ function render(tokens, idx, options, env, slf, md) {
   return `<pre><code class='${className}'>${escapedContent}</code></pre>\n`;
 }
 
-export default function(md) {
-  md.renderer.rules.fence = (tokens,idx,options,env,slf)=>render(tokens,idx,options,env,slf,md);
+export function setup(helper) {
+  if (!helper.markdownIt) { return; }
+
+  helper.registerOptions((opts, siteSettings) => {
+    opts.defaultCodeLang = siteSettings.default_code_lang;
+    opts.acceptableCodeClasses = (siteSettings.highlighted_languages || "").split("|").concat(['auto', 'nohighlight']);
+  });
+
+  helper.whiteList({
+    custom(tag, name, value) {
+      if (tag === 'code' && name === 'class') {
+        const m = /^lang\-(.+)$/.exec(value);
+        if (m) {
+          return helper.getOptions().acceptableCodeClasses.indexOf(m[1]) !== -1;
+        }
+      }
+    }
+  });
+
+  helper.registerPlugin(md=>{
+    md.renderer.rules.fence = (tokens,idx,options,env,slf)=>render(tokens,idx,options,env,slf,md);
+  });
 }

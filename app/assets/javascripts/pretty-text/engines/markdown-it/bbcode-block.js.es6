@@ -78,7 +78,7 @@ export function parseBBCodeTag(src, start, max) {
   }
 }
 
-function applyBBCode(state, startLine, endLine, silent, rules, md) {
+function applyBBCode(state, startLine, endLine, silent, md) {
 
   var i, pos, nextLine,
       old_parent, old_line_max, rule,
@@ -93,8 +93,10 @@ function applyBBCode(state, startLine, endLine, silent, rules, md) {
 
   let info = parseBBCodeTag(state.src, start, max);
 
+  let rules = md.block.bbcode_ruler.getRules();
+
   for(i=0;i<rules.length;i++) {
-    let r = rules[i];
+    let r = rules[i].rule;
 
     if (r.tag === state.src.slice(start+1, start+r.tag.length+1)) {
       rule = r;
@@ -175,23 +177,12 @@ function applyBBCode(state, startLine, endLine, silent, rules, md) {
 
 
 
-export default {
+export function setup(helper) {
+  if (!helper.markdownIt) { return; }
 
-  create: function() {
-    let self = {
-      rules: [],
-
-      addBlockRule: function(rule){
-        self.rules.push(rule);
-      },
-
-      plugin: function(md) {
-        md.block.ruler.after('fence', 'bbcode', (state, startLine, endLine, silent)=> {
-          return applyBBCode(state, startLine, endLine, silent, self.rules, md);
-        });
-      }
-    };
-
-    return self;
-  }
-};
+  helper.registerPlugin(md => {
+    md.block.ruler.after('fence', 'bbcode', (state, startLine, endLine, silent)=> {
+      return applyBBCode(state, startLine, endLine, silent, md);
+    });
+  });
+}
