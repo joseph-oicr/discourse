@@ -84,21 +84,25 @@ function applyBBCode(state, startLine, endLine, silent, md) {
       old_parent, old_line_max, rule,
       auto_closed = false,
       start = state.bMarks[startLine] + state.tShift[startLine],
+      initial = start,
       max = state.eMarks[startLine];
 
 
   // [ === 91
   if (91 !== state.src.charCodeAt(start)) { return false; }
 
-
   let info = parseBBCodeTag(state.src, start, max);
+
+  if (!info) {
+    return false;
+  }
 
   let rules = md.block.bbcode_ruler.getRules();
 
   for(i=0;i<rules.length;i++) {
     let r = rules[i].rule;
 
-    if (r.tag === state.src.slice(start+1, start+r.tag.length+1)) {
+    if (r.tag === info.tag) {
       rule = r;
       break;
     }
@@ -151,19 +155,18 @@ function applyBBCode(state, startLine, endLine, silent, md) {
 
   old_parent = state.parentType;
   old_line_max = state.lineMax;
-  state.parentType = 'aside';
 
   // this will prevent lazy continuations from ever going past our end marker
   state.lineMax = nextLine;
 
-  rule.before.call(this, state, info.attrs, md);
+  rule.before.call(this, state, info.attrs, md, state.src.slice(initial, initial + info.length + 1));
 
   let lastToken = state.tokens[state.tokens.length-1];
   lastToken.map    = [ startLine, nextLine ];
 
   state.md.block.tokenize(state, startLine + 1, nextLine);
 
-  rule.after.call(this, state);
+  rule.after.call(this, state, lastToken, md);
 
   lastToken = state.tokens[state.tokens.length-1];
 
